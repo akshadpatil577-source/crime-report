@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Reporting Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚔</text></svg>">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="logo">
+                <svg class="icon" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                </svg>
+                Crime Portal
+            </div>
+            <ul id="navLinks">
+                <li><a href="#" onclick="showPage('home')">Home</a></li>
+                <li><a href="#" onclick="showPage('auth')">Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Home Page -->
+        <div id="home-page" class="page">
+            <div class="header">
+                <h1 class="fade-in-up">Online Crime Reporting</h1>
+                <p class="fade-in-up delay-200">Report crimes safely • Track status in real-time • 24/7 Access</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card fade-in-up delay-400">
+                    <div class="icon-wrapper primary">
+                        <svg viewBox="0 0 24 24" width="48" height="48">
+                            <path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
+                        </svg>
+                    </div>
+                    <h3>Easy Filing</h3>
+                    <p>File complaints online without visiting police stations.</p>
+                </div>
+                <div class="feature-card fade-in-up delay-600">
+                    <div class="icon-wrapper success">
+                        <svg viewBox="0 0 24 24" width="48" height="48">
+                            <path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                    </div>
+                    <h3>Live Tracking</h3>
+                    <p>Monitor your complaint status with real-time updates.</p>
+                </div>
+                <div class="feature-card fade-in-up delay-800">
+                    <div class="icon-wrapper accent">
+                        <svg viewBox="0 0 24 24" width="48" height="48">
+                            <path fill="currentColor" d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+                        </svg>
+                    </div>
+                    <h3>Secure Storage</h3>
+                    <p>Your data encrypted and protected with bank-level security.</p>
+                </div>
+                <div class="feature-card fade-in-up delay-1000">
+                    <div class="icon-wrapper warning">
+                        <svg viewBox="0 0 24 24" width="48" height="48">
+                            <path fill="currentColor" d="M14.4 6L14 4H10v2h1.6l.4 2h5zM20 8H4c-.55 0-1 .45-1 1v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-.55-.45-1-1-1zm-1 12H5V9h14v11z"/>
+                        </svg>
+                    </div>
+                    <h3>Evidence Upload</h3>
+                    <p>Attach photos, videos, and documents securely.</p>
+                </div>
+            </div>
+
+            <div class="cta-section fade-in-up delay-1200">
+                <button class="btn btn-primary btn-lg pulse" onclick="showPage('auth')">
+                    🚨 Report Crime Now
+                </button>
+            </div>
+        </div>
+
+        <!-- Login/Register Page -->
+        <div id="auth-page" class="page hidden">
+            <div class="auth-container">
+                <div class="auth-card slide-in-right">
+                    <div class="auth-header">
+                        <h2 id="authTitle">Welcome Back</h2>
+                        <p id="authSubtitle" class="text-muted">Sign in to your account</p>
+                    </div>
+                    
+                    <form id="authForm" onsubmit="handleAuth(event)">
+                        <div id="loginFields">
+                            <div class="form-group">
+                                <label for="loginEmail">
+                                    <svg class="input-icon" viewBox="0 0 24 24" width="20" height="20">
+                                        <path fill="currentColor" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                    </svg>
+                                    Email Address
+                                </label>
+                                <input type="email" id="loginEmail" placeholder="user@example.com" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">
+                                    <svg class="input-icon" viewBox="0 0 24 24" width="20" height="20">
+                                        <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                                    </svg>
+                                    Password
+                                </label>
+                                <input type="password" id="loginPassword" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginRole">Login As</label>
+                                <select id="loginRole" required>
+                                    <option value="user">👤 Citizen</option>
+                                    <option value="admin">👮‍♂️ Police Officer</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full bounce">Sign In</button>
+                        </div>
+
+                        <div id="registerFields" class="hidden">
+                            <div class="form-group">
+                                <label for="regName">Full Name</label>
+                                <input type="text" id="regName" placeholder="John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label for="regEmail">Email</label>
+                                <input type="email" id="regEmail" placeholder="john@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="regPhone">Phone Number</label>
+                                <input type="tel" id="regPhone" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="form-group">
+                                <label for="regPassword">Create Password</label>
+                                <input type="password" id="regPassword">
+                            </div>
+                            <div class="form-group">
+                                <label for="regConfirm">Confirm Password</label>
+                                <input type="password" id="regConfirm">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full bounce">Create Account</button>
+                        </div>
+                    </form>
+
+                    <div class="auth-footer">
+                        <span id="toggleText">Don't have an account? <a href="#" onclick="toggleAuthMode()" class="link-hover">Register now</a></span>
+                        <div class="demo-info">
+                            <button type="button" onclick="showDemoInfo()" class="btn btn-link text-sm">Demo Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="page hidden">
+            <header class="dashboard-header fade-in-up">
+                <div class="welcome-section">
+                    <h1>Welcome back, <span id="userName">User</span>!</h1>
+                    <p>Here's what's happening with your reports</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="handleLogout()">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                            <path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.59L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                        </svg>
+                        Logout
+                    </button>
+                </div>
+            </header>
+
+            <!-- User Dashboard -->
+            <div id="userDashboard">
+                <div class="stats-grid fade-in-up delay-200">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-number" id="totalComplaints">0</div>
+                        <div class="stat-label">Total Reports</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-number" id="pendingComplaints">0</div>
+                        <div class="stat-label">Pending</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number" id="resolvedComplaints">0</div>
+                        <div class="stat-label">Resolved</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-section fade-in-up delay-400">
+                    <div class="section-header">
+                        <h2><svg viewBox="0 0 24 24" width="24" height="24">📝</svg> File New Report</h2>
+                    </div>
+                    <form id="complaintForm" class="complaint-form" onsubmit="handleComplaintSubmit(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Crime Category</label>
+                                <select id="crimeCategory" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Theft">💰 Theft</option>
+                                    <option value="Cyber Crime">💻 Cyber Crime</option>
+                                    <option value="Harassment">📞 Harassment</option>
+                                    <option value="Fraud">💸 Fraud</option>
+                                    <option value="Violence">👊 Violence</option>
+                                    <option value="Property Damage">🏠 Property Damage</option>
+                                    <option value="Other">📋 Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Date of Incident</label>
+                                <input type="date" id="crimeDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Time of Incident</label>
+                                <input type="time" id="crimeTime" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="crimeLocation" placeholder="Enter exact location" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="crimeDescription" placeholder="Describe what happened in detail..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Evidence (Optional)</label>
+                            <input type="file" id="crimeEvidence" accept="image/*,.pdf,.doc,.docx" multiple>
+                            <small>Upload images, PDFs, or documents (Max 10MB total)</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full pulse">
+                            🚨 Submit Report
+                        </button>
+                    </form>
+                </div>
+
+                <div class="dashboard-section fade-in-up delay-600">
+                    <div class="section-header">
+                        <h2><svg viewBox="0 0 24 24" width="24" height="24">📊</svg> My Reports</h2>
+                    </div>
+                    <div id="userComplaints" class="reports-table">
+                        <div class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 64 64">
+                                <circle cx="32" cy="32" r="24" fill="#e5e7eb"/>
+                                <path fill="#9ca3af" d="M24 20h16v8H24z"/>
+                                <circle cx="28" cy="24" r="2" fill="#6b7280"/>
+                                <rect x="32" y="40" width="32" height="4" rx="2" fill="#d1d5db"/>
+                            </svg>
+                            <h3>No reports yet</h3>
+                            <p>File your first report above</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="hidden">
+                <div class="stats-grid fade-in-up delay-200">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">📈</div>
+                        <div class="stat-number" id="adminTotal">0</div>
+                        <div class="stat-label">Total Reports</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-number" id="adminPending">0</div>
+                        <div class="stat-label">Pending Review</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-number" id="adminAccepted">0</div>
+                        <div class="stat-label">Accepted</div>
+                    </div>
+                    <div class="stat-card error">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-number" id="adminRejected">0</div>
+                        <div class="stat-label">Rejected</div>
+                    </div>
+                </div>
+
+                <div class="dashboard-section fade-in-up delay-400">
+                    <div class="section-header">
+                        <h2><svg viewBox="0 0 24 24" width="24" height="24">⚖️</svg> Manage Reports</h2>
+                    </div>
+                    <div id="adminComplaints" class="reports-table">
+                        <div class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 64 64">
+                                <circle cx="32" cy="32" r="24" fill="#e5e7eb"/>
+                                <path fill="#9ca3af" d="M24 20h16v8H24z"/>
+                            </svg>
+                            <h3>No reports pending</h3>
+                            <p>Reports will appear here for review</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="fade-in-up">
+        <div class="container">
+            <p>© 2025 Crime Reporting Portal | Secure • Transparent • Efficient | Powered by Modern Web</p>
+        </div>
+    </footer>
+
+    <!-- Report Details Modal -->
+    <div id="detailsModal" class="modal-overlay">
+        <div class="modal-content scale-in-center">
+            <div class="modal-header">
+                <h3 id="modalTitle">Report Details</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg viewBox="0 0 24 24" width="24" height="24">
+                        <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notificationContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
