@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="notifications-container">
+    <h1>Notifications</h1>
+
+    <div class="notifications-controls">
+        <button class="btn btn-secondary" onclick="markAllRead()">Mark All as Read</button>
+        <select id="filterType" onchange="filterNotifications()">
+            <option value="">All Notifications</option>
+            <option value="status_update">Status Updates</option>
+            <option value="verification">Verifications</option>
+            <option value="rejection">Rejections</option>
+            <option value="general">General</option>
+        </select>
+    </div>
+
+    <div id="notificationsList" class="notifications-list">
+        <div class="loading">Loading notifications...</div>
+    </div>
+</div>
+
+<script>
+    async function loadNotifications() {
+        const unread = false; // Show all by default
+        const type = document.getElementById('filterType').value;
+
+        let url = `/api/notifications?unread=${unread}`;
+        if (type) {
+            url += `&type=${type}`;
+        }
+
+        try {
+            const response = await fetch(url);
+            const notifications = await response.json();
+
+            const list = document.getElementById('notificationsList');
+
+            if (notifications.length > 0) {
+                list.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.is_read ? 'read' : 'unread'}" 
+                     data-id="${notif.id}"
+                     onclick="markRead(${notif.id})">
+                    <div class="notification-header">
+                        <h3>${notif.title}</h3>
+                        ${!notif.is_read ? '<span class="unread-badge">NEW</span>' : ''}
+                    </div>
+                    <p class="notification-message">${notif.message}</p>
+                    <small class="notification-time">${new Date(notif.created_at).toLocaleString()}</small>
+                </div>
+            `).join('');
+            } else {
+                list.innerHTML = '<div class="no-data">No notifications</div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('notificationsList').innerHTML = '<div class="error">Failed to load notifications</div>';
+        }
+    }
+
+    async function markRead(notificationId) {
+        try {
+            await fetch(`/api/notification/${notificationId}/read`, { method: 'PUT' });
+            loadNotifications();
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    async function markAllRead() {
+        const items = document.querySelectorAll('.notification-item.unread');
+        for (let item of items) {
+            const notifId = item.getAttribute('data-id');
+            if (notifId) {
+                await fetch(`/api/notification/${notifId}/read`, { method: 'PUT' });
+            }
+        }
+        loadNotifications();
+    }
+
+    function filterNotifications() {
+        loadNotifications();
+    }
+
+    document.addEventListener('DOMContentLoaded', loadNotifications);
+</script>
+{% endblock %}

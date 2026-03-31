@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Access your crime reporting account securely</p>
+        </div>
+
+        <form id="loginForm" class="auth-form">
+            <div id="formError" class="alert alert-error" style="display: none;">
+                <div>
+                    <h4>⚠ Login Failed</h4>
+                    <p id="errorMessage"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">📧 Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="you@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">🔒 Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="rememberMe" name="rememberMe">
+                    <label for="rememberMe">Remember me for 30 days</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full">Sign In</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('register') }}">Create account</a></p>
+            <p><a href="#">Recover password</a></p>
+        </div>
+
+        <!-- Demo Credentials -->
+        <div class="demo-credentials">
+            <h4>🧪 Demo Credentials</h4>
+            <div class="demo-item">
+                <strong>User:</strong> user@example.com / user123
+            </div>
+            <div class="demo-item">
+                <strong>Admin:</strong> admin@crimeportal.com / admin@123
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorDiv = document.getElementById('formError');
+    errorDiv.style.display = 'none';
+
+    const formData = {
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+    };
+
+    try {
+        const response = await fetch('{{ url_for("login") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Redirect based on role
+            if (data.role === 'admin') {
+                window.location.href = '{{ url_for("admin_dashboard") }}';
+            } else {
+                window.location.href = '{{ url_for("submit_report_page") }}';
+            }
+        } else {
+            document.getElementById('errorMessage').textContent = data.error || 'Invalid email or password';
+            errorDiv.style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('errorMessage').textContent = 'An error occurred. Please try again.';
+        errorDiv.style.display = 'flex';
+    }
+});
+</script>
+{% endblock %}

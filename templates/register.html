@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p>Join our secure crime reporting platform and help fight crime</p>
+        </div>
+
+        <form id="registerForm" class="auth-form">
+            <div id="formError" class="alert alert-error" style="display: none;">
+                <div>
+                    <h4>⚠ Registration Error</h4>
+                    <p id="errorMessage"></p>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="name">👤 Full Name</label>
+                <input type="text" id="name" name="name" required placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label for="email">📧 Email Address</label>
+                <input type="email" id="email" name="email" required placeholder="you@example.com">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">📱 Phone Number</label>
+                <input type="tel" id="phone" name="phone" required placeholder="9876543210">
+            </div>
+
+            <div class="form-group">
+                <label for="password">🔒 Password</label>
+                <input type="password" id="password" name="password" required placeholder="Enter strong password">
+                <small style="color: #64748b; display: block; margin-top: 6px;">At least 8 characters with uppercase, lowercase, and numbers</small>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">🔐 Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Confirm password">
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-item">
+                    <input type="checkbox" id="terms" name="terms" required>
+                    <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg btn-full">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login') }}">Sign in instead</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorDiv = document.getElementById('formError');
+    errorDiv.style.display = 'none';
+
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    if (password !== confirmPassword) {
+        document.getElementById('errorMessage').textContent = 'Passwords do not match!';
+        errorDiv.style.display = 'flex';
+        return;
+    }
+
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        password: password
+    };
+
+    try {
+        const response = await fetch('{{ url_for("register") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Show success message and redirect
+            window.location.href = '{{ url_for("login") }}?registered=true';
+        } else {
+            document.getElementById('errorMessage').textContent = data.error || 'Registration failed. Please try again.';
+            errorDiv.style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('errorMessage').textContent = 'An error occurred. Please try again later.';
+        errorDiv.style.display = 'flex';
+    }
+});
+</script>
+{% endblock %}

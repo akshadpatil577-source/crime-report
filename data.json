@@ -1,0 +1,149 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Regular User",
+      "email": "user@example.com",
+      "password_hash": "scrypt:32768:8:1$3SY96f5phclx5kN3$6519d348a0ab92b125c3a2a2f1c1817567bf2ac0232b527c5400bab29ed398f4251136dd603047ed802b5415bb2dd0ff9878e9b3eb92bd923aef8541b022ca79",
+      "phone": "9876543210",
+      "role": "user",
+      "created_at": "2026-01-30T00:45:56.122186"
+    },
+    {
+      "id": 2,
+      "name": "System Admin",
+      "email": "admin@crimeportal.com",
+      "password_hash": "scrypt:32768:8:1$8d7MufxVtu8VsUtE$8ed569f9bd7e1d3281f1e516cdd6eee5a884e5b061ccdfb0741d0e0fb7b366ec202f99135232c15e50794ce5e0b0ede24793394eec8b086dcbedf3821dc728d1",
+      "phone": "9999999999",
+      "role": "admin",
+      "created_at": "2026-01-30T00:45:56.209087"
+    },
+    {
+      "id": 3,
+      "name": "Aryan Thakar",
+      "email": "aryanthakar321@gmail.com",
+      "password_hash": "scrypt:32768:8:1$cPfKzykzVaUFNmyN$f705b1224916946e4e516ad433307c2aea14abc5a6870b558ef3ea2987add1e4d7404ade045963002f0c6f8fe4790457bacf00b1c20af96059b40ed9724c1226",
+      "phone": "1234567890",
+      "role": "user",
+      "created_at": "2026-01-30T00:57:03.729141"
+    }
+  ],
+  "complaints": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "category": "Cyber Crime",
+      "title": "scam",
+      "description": "1000 scam upi",
+      "location": "virar",
+      "latitude": "20.0367",
+      "longitude": "73.7847",
+      "incident_date": "2025-12-30T01:12",
+      "status": "Submitted",
+      "priority": "High",
+      "created_at": "2026-01-30T01:09:57.369117",
+      "evidence_files": [
+        {
+          "filename": "UNIT_1.pdf",
+          "file_type": "pdf",
+          "uploaded_at": "2026-01-30T01:09:57.370855"
+        }
+      ],
+      "tracking_updates": [
+        {
+          "status": "Submitted",
+          "message": "Your complaint has been received successfully.",
+          "created_at": "2026-01-30T01:09:57.369127"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "user_id": 3,
+      "category": "Property Damage",
+      "title": "home",
+      "description": "home",
+      "location": "virar",
+      "latitude": null,
+      "longitude": null,
+      "incident_date": "2026-01-30T01:21",
+      "status": "Submitted",
+      "priority": "High",
+      "created_at": "2026-01-30T01:22:08.919824",
+      "evidence_files": [
+        {
+          "filename": "CRM_ans.pdf",
+          "file_type": "pdf",
+          "uploaded_at": "2026-01-30T01:22:08.920729"
+        }
+      ],
+      "tracking_updates": [
+        {
+          "status": "Submitted",
+          "message": "Your complaint has been received successfully.",
+          "created_at": "2026-01-30T01:22:08.919831"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "category": "Property Damage",
+      "title": "home",
+      "description": "home",
+      "location": "virar",
+      "latitude": null,
+      "longitude": null,
+      "incident_date": "2026-01-30T01:21",
+      "status": "Submitted",
+      "priority": "High",
+      "created_at": "2026-01-30T01:22:09.725366",
+      "evidence_files": [
+        {
+          "filename": "CRM_ans.pdf",
+          "file_type": "pdf",
+          "uploaded_at": "2026-01-30T01:22:09.728361"
+        }
+      ],
+      "tracking_updates": [
+        {
+          "status": "Submitted",
+          "message": "Your complaint has been received successfully.",
+          "created_at": "2026-01-30T01:22:09.725386"
+        }
+      ]
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "complaint_id": 1,
+      "title": "Crime Report Submitted",
+      "message": "Your crime report has been submitted successfully.",
+      "type": "status_update",
+      "is_read": false,
+      "created_at": "2026-01-30T01:09:57.370877"
+    },
+    {
+      "id": 2,
+      "user_id": 3,
+      "complaint_id": 2,
+      "title": "Crime Report Submitted",
+      "message": "Your crime report has been submitted successfully.",
+      "type": "status_update",
+      "is_read": false,
+      "created_at": "2026-01-30T01:22:08.920741"
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "complaint_id": 3,
+      "title": "Crime Report Submitted",
+      "message": "Your crime report has been submitted successfully.",
+      "type": "status_update",
+      "is_read": false,
+      "created_at": "2026-01-30T01:22:09.728392"
+    }
+  ]
+}

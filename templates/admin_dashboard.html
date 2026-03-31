@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <h1>👮 Police Admin Dashboard</h1>
+
+    <!-- Statistics Cards -->
+    <section class="stats-section">
+        <div class="stat-card primary">
+            <h3>{{ total }}</h3>
+            <p>Total Reports</p>
+        </div>
+        <div class="stat-card warning">
+            <h3>{{ submitted }}</h3>
+            <p>Submitted</p>
+        </div>
+        <div class="stat-card info">
+            <h3>{{ in_review }}</h3>
+            <p>In Review</p>
+        </div>
+        <div class="stat-card success">
+            <h3>{{ verified }}</h3>
+            <p>Verified</p>
+        </div>
+    </section>
+
+    <!-- Filter and Search -->
+    <section class="filter-section">
+        <div class="filter-controls">
+            <input type="text" id="searchInput" placeholder="🔍 Search by ID, category, or email...">
+            <select id="statusFilter">
+                <option value="">All Status</option>
+                <option value="Submitted">📝 Submitted</option>
+                <option value="In Review">🔍 In Review</option>
+                <option value="Verified">✅ Verified</option>
+                <option value="Rejected">❌ Rejected</option>
+            </select>
+            <select id="priorityFilter">
+                <option value="">All Priorities</option>
+                <option value="Low">🟢 Low</option>
+                <option value="Medium">🟡 Medium</option>
+                <option value="High">🔴 High</option>
+                <option value="Critical">⛔ Critical</option>
+            </select>
+            <button class="btn btn-primary" onclick="applyFilters()">🔎 Apply Filters</button>
+        </div>
+    </section>
+
+    <!-- Complaints Table -->
+    <section class="complaints-section">
+        <h2>📋 All Crime Reports</h2>
+        <div id="complaintsList" class="table-responsive">
+            <table class="complaints-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Category</th>
+                        <th>Title</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Submitted</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="complaintTable">
+                    <tr><td colspan="8" class="loading">⏳ Loading reports...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+    </section>
+</div>
+
+<!-- Complaint Details Modal -->
+<div id="actionModal" class="modal">
+    <div class="modal-content large">
+        <span class="close" onclick="closeModal()">&times;</span>
+        
+        <h2 id="modalTitle">Crime Report Details</h2>
+        
+        <div id="complaintDetails"></div>
+        
+        <h3>📊 Status Update</h3>
+        <div style="margin-bottom: 20px;">
+            <select id="statusUpdate" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px;">
+                <option value="Submitted">Submitted</option>
+                <option value="In Review">In Review</option>
+                <option value="Verified">Verified</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+        </div>
+        
+        <h3>📝 Police Notes</h3>
+        <textarea id="policeNotes" placeholder="Add investigation notes here..." 
+            style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; min-height: 100px; font-family: inherit; margin-bottom: 20px;"></textarea>
+        
+        <h3>🔗 Tracking History</h3>
+        <div id="trackingHistory"></div>
+        
+        <div style="display: flex; gap: 12px; margin-top: 30px; border-top: 2px solid #e2e8f0; padding-top: 20px;">
+            <button class="btn btn-success" onclick="updateComplaint()">💾 Save Changes</button>
+            <button class="btn btn-secondary" onclick="closeModal()">✕ Close</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+let currentComplaintId = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadComplaints();
+    document.getElementById('searchInput').addEventListener('input', applyFilters);
+});
+
+async function loadComplaints(page = 1) {
+    const status = document.getElementById('statusFilter').value;
+    const search = document.getElementById('searchInput').value;
+    const url = `/api/admin/complaints?page=${page}${status ? '&status=' + status : ''}${search ? '&search=' + search : ''}`;
+
+    try {
+        const response = await fetch(url, { credentials: 'include' });
+        if (!response.ok) throw new Error('Failed to fetch');
+        const data = await response.json();
+
+        const tbody = document.getElementById('complaintTable');
+        if (!data.complaints || data.complaints.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">No reports found</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = data.complaints.map(complaint => `
+            <tr>
+                <td><strong>#${complaint.id}</strong></td>
+                <td>${complaint.category}</td>
+                <td>${complaint.title.substring(0, 30)}...</td>
+                <td>${complaint.location}</td>
+                <td><span class="status-badge ${complaint.status.toLowerCase().replace(' ', '-')}">${complaint.status}</span></td>
+                <td><span class="priority-${complaint.priority.toLowerCase()}">${complaint.priority}</span></td>
+                <td>${new Date(complaint.created_at).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="viewComplaint(${complaint.id})">👁️ View</button>
+                </td>
+            </tr>
+        `).join('');
+
+        // Pagination
+        const pagination = document.getElementById('pagination');
+        pagination.innerHTML = '';
+        for (let i = 1; i <= data.pages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = i === page ? 'active' : '';
+            btn.onclick = () => loadComplaints(i);
+            pagination.appendChild(btn);
+        }
+        currentPage = page;
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('complaintTable').innerHTML = '<tr><td colspan="8" class="error">❌ Failed to load reports</td></tr>';
+    }
+}
+
+async function viewComplaint(complaintId) {
+    currentComplaintId = complaintId;
+    try {
+        const response = await fetch(`/api/complaint/${complaintId}`, { credentials: 'include' });
+        if (!response.ok) throw new Error('Failed to fetch');
+        const complaint = await response.json();
+
+        // Set modal content
+        document.getElementById('modalTitle').textContent = `📋 Report #${complaint.id} - ${complaint.category}`;
+        
+        const detailsHTML = `
+            <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 24px;">
+                <p><strong>📧 Reporter:</strong> ${complaint.reporter_email}</p>
+                <p><strong>🗂️ Category:</strong> ${complaint.category}</p>
+                <p><strong>🎯 Title:</strong> ${complaint.title}</p>
+                <p><strong>📍 Location:</strong> ${complaint.location}</p>
+                <p><strong>⏰ Date:</strong> ${new Date(complaint.incident_date).toLocaleString()}</p>
+                <p><strong>📝 Description:</strong></p>
+                <p style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #2563eb;">${complaint.description}</p>
+            </div>
+        `;
+        
+        document.getElementById('complaintDetails').innerHTML = detailsHTML;
+        
+        // Set status to current
+        document.getElementById('statusUpdate').value = complaint.status;
+        document.getElementById('policeNotes').value = complaint.police_notes || '';
+        
+        // Load tracking history
+        const trackingResponse = await fetch(`/api/complaint/${complaintId}/tracking`, { credentials: 'include' });
+        if (trackingResponse.ok) {
+            const tracking = await trackingResponse.json();
+            const historyHTML = tracking.tracking_history.map(entry => `
+                <div class="tracking-item">
+                    <div class="timestamp">📅 ${new Date(entry.timestamp).toLocaleString()}</div>
+                    <div style="margin-top: 6px;">${entry.action}</div>
+                </div>
+            `).join('');
+            document.getElementById('trackingHistory').innerHTML = historyHTML;
+        }
+        
+        // Show modal
+        document.getElementById('actionModal').classList.add('show');
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ Failed to load complaint details');
+    }
+}
+
+async function updateComplaint() {
+    if (!currentComplaintId) return;
+    
+    const newStatus = document.getElementById('statusUpdate').value;
+    const policeNotes = document.getElementById('policeNotes').value;
+    
+    try {
+        const response = await fetch(`/api/admin/update-complaint/${currentComplaintId}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            credentials: 'include',
+            body: JSON.stringify({
+                status: newStatus,
+                police_notes: policeNotes
+            })
+        });
+        
+        if (response.ok) {
+            alert('✅ Complaint updated successfully');
+            closeModal();
+            loadComplaints(currentPage);
+        } else {
+            alert('❌ Failed to update complaint');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('❌ An error occurred');
+    }
+}
+
+function closeModal() {
+    document.getElementById('actionModal').classList.remove('show');
+    currentComplaintId = null;
+}
+
+function applyFilters() {
+    loadComplaints(1);
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    const modal = document.getElementById('actionModal');
+    if (event.target === modal) {
+        closeModal();
+    }
+}
+</script> 
+{% endblock %}

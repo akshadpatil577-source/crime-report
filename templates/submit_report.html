@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Crime Report - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <div class="report-card">
+        <h1>📋 File Crime Report</h1>
+        <p class="subtitle">Provide detailed information about the crime incident - All information is confidential</p>
+
+        <form id="reportForm" class="crime-form" enctype="multipart/form-data">
+            <div id="formError" class="alert alert-error" style="display: none;">
+                <div>
+                    <h4>⚠ Submission Error</h4>
+                    <p id="errorMessage"></p>
+                </div>
+            </div>
+
+            <div id="formSuccess" class="alert alert-success" style="display: none;">
+                <div>
+                    <h4>✓ Success!</h4>
+                    <p id="successMessage"></p>
+                </div>
+            </div>
+
+            <fieldset>
+                <legend>Basic Information</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="category">📊 Crime Category*</label>
+                        <select id="category" name="category" required>
+                            <option value="">Select Category</option>
+                            <option value="Theft">🚨 Theft</option>
+                            <option value="Assault">👊 Assault</option>
+                            <option value="Fraud">💳 Fraud</option>
+                            <option value="Cyber Crime">💻 Cyber Crime</option>
+                            <option value="Property Damage">🏠 Property Damage</option>
+                            <option value="Harassment">📢 Harassment</option>
+                            <option value="Other">❓ Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priority">🔴 Priority Level*</label>
+                        <select id="priority" name="priority" required>
+                            <option value="Low">🟢 Low</option>
+                            <option value="Medium" selected>🟡 Medium</option>
+                            <option value="High">🔴 High</option>
+                            <option value="Critical">⛔ Critical</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">✏️ Report Title*</label>
+                    <input type="text" id="title" name="title" required placeholder="Brief title of the incident">
+                </div>
+
+                <div class="form-group">
+                    <label for="aadharNumber">🆔 Aadhar Card Number</label>
+                    <input type="text" id="aadharNumber" name="aadhar_number" placeholder="Aadhar Number (Optional)">
+                </div>
+
+                <div class="form-group">
+                    <label for="description">📝 Detailed Description*</label>
+                    <textarea id="description" name="description" rows="6" required
+                        placeholder="Provide detailed information about the crime, including what happened, when, where, and who was involved..."></textarea>
+                </div>
+            </fieldset>
+
+            <fieldset>
+                <legend>Incident Details</legend>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="incidentDate">📅 Date & Time of Incident*</label>
+                        <input type="datetime-local" id="incidentDate" name="incident_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">📍 Location*</label>
+                        <input type="text" id="location" name="location" required
+                            placeholder="Exact location where crime occurred">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="latitude">🗺️ Latitude (Optional)</label>
+                        <input type="number" id="latitude" name="latitude" step="any" placeholder="e.g., 28.6139">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="longitude">🗺️ Longitude (Optional)</label>
+                        <input type="number" id="longitude" name="longitude" step="any" placeholder="e.g., 77.2090">
+                    </div>
+                </div>
+
+                <button type="button" class="btn btn-secondary btn-sm" onclick="getLocation()">📡 Use Current
+                    Location</button>
+            </fieldset>
+
+            <fieldset>
+                <legend>Evidence Upload (Optional)</legend>
+                <div class="form-group">
+                    <label for="evidenceFiles">📸 Upload Evidence Files</label>
+                    <input type="file" id="evidenceFiles" name="evidence_files" multiple
+                        accept=".pdf,.png,.jpg,.jpeg,.gif,.doc,.docx">
+                    <small style="color: #64748b; display: block; margin-top: 8px;">
+                        ✓ Accepted: Images (JPG, PNG, GIF), Documents (PDF, DOC, DOCX)<br>
+                        ✓ Max: 16MB per file
+                    </small>
+                    <div id="fileList" class="file-list" style="margin-top: 16px;"></div>
+                </div>
+            </fieldset>
+
+            <div class="form-actions" style="display: flex; gap: 16px; margin-top: 40px;">
+                <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;">Submit Report</button>
+                <button type="reset" class="btn btn-secondary btn-lg" style="flex: 1;">Clear Form</button>
+            </div>
+
+            <div class="alert alert-info" style="margin-top: 30px;">
+                <div>
+                    <h4>🛡️ Your Privacy Matters</h4>
+                    <p>All information is treated with utmost confidentiality. You will receive a complaint ID to
+                        securely track your report.</p>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .file-list {
+        display: grid;
+        gap: 10px;
+    }
+
+    .file-item {
+        background: #f8fafc;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 13px;
+    }
+
+    .file-size {
+        color: #94a3b8;
+        font-size: 12px;
+    }
+
+    .form-actions {
+        padding-top: 20px;
+        border-top: 2px solid #e2e8f0;
+    }
+</style>
+
+<script>
+    // File input handling
+    document.getElementById('evidenceFiles').addEventListener('change', function (e) {
+        const fileList = document.getElementById('fileList');
+        fileList.innerHTML = '';
+
+        if (this.files.length === 0) return;
+
+        Array.from(this.files).forEach((file, index) => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+            const sizeKB = (file.size / 1024).toFixed(2);
+            fileItem.innerHTML = `
+            <div>
+                <strong>${file.name}</strong><br>
+                <small>${sizeKB} KB</small>
+            </div>
+        `;
+            fileList.appendChild(fileItem);
+        });
+    });
+
+    // Get current location
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                document.getElementById('latitude').value = position.coords.latitude;
+                document.getElementById('longitude').value = position.coords.longitude;
+            }, error => {
+                const errorDiv = document.getElementById('formError');
+                document.getElementById('errorMessage').textContent = 'Could not access your location: ' + error.message;
+                errorDiv.style.display = 'flex';
+            });
+        } else {
+            const errorDiv = document.getElementById('formError');
+            document.getElementById('errorMessage').textContent = 'Geolocation is not supported by your browser.';
+            errorDiv.style.display = 'flex';
+        }
+    }
+
+    // Form submission
+    document.getElementById('reportForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errorDiv = document.getElementById('formError');
+        const successDiv = document.getElementById('formSuccess');
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('category', document.getElementById('category').value);
+        formData.append('title', document.getElementById('title').value);
+        formData.append('aadhar_number', document.getElementById('aadharNumber').value);
+        formData.append('description', document.getElementById('description').value);
+        formData.append('location', document.getElementById('location').value);
+        formData.append('incident_date', document.getElementById('incidentDate').value);
+        formData.append('priority', document.getElementById('priority').value);
+
+        if (document.getElementById('latitude').value) {
+            formData.append('latitude', document.getElementById('latitude').value);
+        }
+        if (document.getElementById('longitude').value) {
+            formData.append('longitude', document.getElementById('longitude').value);
+        }
+
+        // Add files
+        const files = document.getElementById('evidenceFiles').files;
+        for (let file of files) {
+            formData.append('evidence_files', file);
+        }
+
+        try {
+            const response = await fetch('{{ url_for("submit_complaint") }}', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('successMessage').innerHTML = `Report submitted successfully!<br><strong>Complaint ID: ${data.complaint_id}</strong>`;
+                successDiv.style.display = 'flex';
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("tracking_page") }}';
+                }, 2000);
+            } else {
+                document.getElementById('errorMessage').textContent = data.message || 'An error occurred. Please try again.';
+                errorDiv.style.display = 'flex';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('errorMessage').textContent = 'Failed to submit report. Please try again.';
+            errorDiv.style.display = 'flex';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Track Report - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="tracking-container">
+    <h1>Track Your Reports</h1>
+    <p class="subtitle">View the status of your crime reports</p>
+
+    <div class="tracking-content">
+        <div id="complaintsList" class="complaints-list">
+            <div class="loading">Loading your reports...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Detail Modal -->
+<div id="reportModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('reportModal');
+    const closeBtn = document.querySelector('.close');
+
+    closeBtn.onclick = function () {
+        modal.style.display = 'none';
+    }
+
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    // Helper to render the status stepper
+    function renderStepper(currentStatus) {
+        const steps = ['Submitted', 'In Review', 'Verified'];
+        const isRejected = currentStatus === 'Rejected';
+        const isClosed = currentStatus === 'Closed';
+
+        let html = '<div class="tracking-stepper">';
+
+        steps.forEach((step, index) => {
+            let statusClass = '';
+            let icon = index + 1;
+
+            // Logic for stepper state
+            if (isRejected && index === 2) {
+                // If rejected, the last step shows rejection
+                statusClass = 'rejected';
+                step = 'Rejected';
+                icon = '✕';
+            } else if (currentStatus === step || (currentStatus === 'Closed' && step === 'Verified')) {
+                statusClass = 'active';
+                icon = '●';
+            } else if (getStepIndex(currentStatus) > index || isClosed) {
+                statusClass = 'completed';
+                icon = '✓';
+            }
+
+            html += `
+                <div class="stepper-step ${statusClass}">
+                    <div class="step-circle">${icon}</div>
+                    <div class="step-label">${step}</div>
+                </div>
+            `;
+        });
+
+        html += '</div>';
+        return html;
+    }
+
+    function getStepIndex(status) {
+        const order = ['Submitted', 'In Review', 'Verified', 'Closed'];
+        if (status === 'Rejected') return 2; // Treat rejected as parallel to Verified
+        return order.indexOf(status);
+    }
+
+    // Load complaints
+    async function loadComplaints() {
+        try {
+            const response = await fetch('{{ url_for("get_all_complaints") if session.get("user_role") == "admin" else "/api/user/complaints" }}');
+            const data = await response.json();
+
+            const complaintsList = document.getElementById('complaintsList');
+
+            if (data.complaints && data.complaints.length > 0) {
+                complaintsList.innerHTML = data.complaints.map(complaint => `
+                <div class="complaint-card">
+                    <div class="complaint-header">
+                        <div>
+                            <h3>#${complaint.id} - ${complaint.title}</h3>
+                            <p class="category">${complaint.category}</p>
+                        </div>
+                        <span class="status-badge status-${complaint.status.toLowerCase().replace(' ', '-')}">
+                            ${complaint.status}
+                        </span>
+                    </div>
+
+                    ${renderStepper(complaint.status)}
+
+                    <div class="complaint-details">
+                        <p><strong>📍 Location:</strong> ${complaint.location}</p>
+                        <p><strong>📅 Date:</strong> ${new Date(complaint.created_at).toLocaleDateString()}</p>
+                        <p><strong>⚠️ Priority:</strong> <span class="priority-${complaint.priority.toLowerCase()}">${complaint.priority}</span></p>
+                    </div>
+
+                    <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 10px;" onclick="viewDetails(${complaint.id})">
+                        View Full History & Details →
+                    </button>
+                </div>
+            `).join('');
+            } else {
+                complaintsList.innerHTML = '<div class="no-data">No complaints found. <a href="{{ url_for("submit_report_page") }}">File a new report</a></div>';
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.getElementById('complaintsList').innerHTML = '<div class="error">Failed to load complaints</div>';
+        }
+    }
+
+    async function viewDetails(complaintId) {
+        try {
+            const response = await fetch(`/api/complaint/${complaintId}`);
+            const complaint = await response.json();
+
+            const trackingResponse = await fetch(`/api/complaint/${complaintId}/tracking`);
+            const tracking = await trackingResponse.json();
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+            <div class="report-detail">
+                <h2>Report Details</h2>
+                <div class="detail-section">
+                    <h3>Basic Information</h3>
+                    <table class="detail-table">
+                        <tr>
+                            <td><strong>Complaint ID:</strong></td>
+                            <td>#${complaint.id}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Aadhar ID:</strong></td>
+                            <td>${complaint.aadhar_number || 'N/A'}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Category:</strong></td>
+                            <td>${complaint.category}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Status:</strong></td>
+                            <td><span class="status-badge ${complaint.status.toLowerCase()}">${complaint.status}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Priority:</strong></td>
+                            <td><span class="priority-${complaint.priority.toLowerCase()}">${complaint.priority}</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Submitted:</strong></td>
+                            <td>${new Date(complaint.created_at).toLocaleString()}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Incident Details</h3>
+                    <p><strong>Title:</strong> ${complaint.title}</p>
+                    <p><strong>Description:</strong></p>
+                    <p>${complaint.description}</p>
+                    <p><strong>Location:</strong> ${complaint.location}</p>
+                </div>
+
+                <div class="detail-section">
+                    <h3>Status Updates</h3>
+                    <div class="timeline">
+                        ${tracking.updates.map((update, index) => `
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h4>${update.status}</h4>
+                                    <p>${update.message}</p>
+                                    <small>${new Date(update.created_at).toLocaleString()}</small>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                ${complaint.evidence_files && complaint.evidence_files.length > 0 ? `
+                    <div class="detail-section">
+                        <h3>Evidence Files</h3>
+                        <div class="file-list">
+                            ${complaint.evidence_files.map(file => `
+                                <div class="file-item">
+                                    <span>${file.filename}</span>
+                                    <span class="file-type">${file.file_type}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+            modal.style.display = 'block';
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Failed to load report details');
+        }
+    }
+
+    // Load on page load
+    document.addEventListener('DOMContentLoaded', loadComplaints);
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Crime Reporting Portal{% endblock %}
+
+{% block content %}
+<div class="header">
+    <h1>🚔 Safe & Secure Crime Reporting</h1>
+    <p>Report crimes online anytime, anywhere • Real-time tracking • 24/7 Support</p>
+    {% if not session.get('user_id') %}
+    <div style="display: flex; gap: 16px; justify-content: center; margin-top: 32px; flex-wrap: wrap;">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started Now</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">Sign In</a>
+    </div>
+    {% else %}
+    <div style="display: flex; gap: 16px; justify-content: center; margin-top: 32px; flex-wrap: wrap;">
+        <a href="{{ url_for('submit_report_page') }}" class="btn btn-primary btn-lg">📝 File a Report</a>
+        <a href="{{ url_for('tracking_page') }}" class="btn btn-secondary btn-lg">🔍 Track Status</a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Features Section -->
+<section class="features-section">
+    <h2>Why Choose Our Platform?</h2>
+    <div class="features-grid">
+        <div class="feature-card fade-in-up">
+            <div class="icon-wrapper primary">
+                📋
+            </div>
+            <h3>Fast & Simple</h3>
+            <p>File complaints in minutes without visiting police stations. Simple, streamlined process.</p>
+        </div>
+
+        <div class="feature-card fade-in-up delay-200">
+            <div class="icon-wrapper success">
+                ✅
+            </div>
+            <h3>Track Progress</h3>
+            <p>Get real-time updates on your complaint status with detailed information.</p>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="stats-section">
+    <h2>Platform Impact</h2>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 id="totalComplaints">0</h3>
+            <p>Total Complaints</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="verifiedCount">0</h3>
+            <p>Verified Reports</p>
+        </div>
+        <div class="stat-card">
+            <h3 id="resolvedCount">0</h3>
+            <p>Resolved Cases</p>
+        </div>
+        <div class="stat-card">
+            <h3>24/7</h3>
+            <p>Online Access</p>
+        </div>
+    </div>
+</section>
+
+<!-- Help Section -->
+<section style="padding: 80px 20px; background: white; border-radius: 16px; margin: 80px 0;">
+    <h2 style="text-align: center; font-size: 2.8rem; font-weight: 900; margin-bottom: 60px;">How to Get Started?</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 32px;">
+        <div style="text-align: center; padding: 32px; background: linear-gradient(135deg, #dbeafe 0%, #f0f9ff 100%); border-radius: 14px; border: 2px solid #bfdbfe;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #2563eb, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 2rem; font-weight: 900;">1</div>
+            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">Register Account</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Create your account in just a few minutes with basic information.</p>
+        </div>
+        <div style="text-align: center; padding: 32px; background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border-radius: 14px; border: 2px solid #bfdbfe;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 2rem; font-weight: 900;">2</div>
+            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">File Complaint</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Provide detailed information about the crime with date and location.</p>
+        </div>
+        <div style="text-align: center; padding: 32px; background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); border-radius: 14px; border: 2px solid #bfdbfe;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 2rem; font-weight: 900;">3</div>
+            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">Upload Evidence</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Attach photos, videos, and documents to support your case.</p>
+        </div>
+        <div style="text-align: center; padding: 32px; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-radius: 14px; border: 2px solid #bfdbfe;">
+            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #dc2626, #b91c1c); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 2rem; font-weight: 900;">4</div>
+            <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">Track Status</h3>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.7;">Monitor progress and receive real-time updates from authorities.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Emergency Contact -->
+<section class="emergency-section">
+    <div class="emergency-box">
+        <h2>Emergency?</h2>
+        <p>For immediate assistance, call <strong>100</strong> or <strong>1930</strong> for Cyber Crimes</p>
+    </div>
+</section>
+
+<script>
+// Load statistics
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/admin/complaints', {
+        headers: { 'Accept': 'application/json' }
+    }).catch(() => {
+        // If not admin, just show default values
+        document.getElementById('totalComplaints').textContent = '...';
+        document.getElementById('verifiedCount').textContent = '...';
+    });
+});
+</script>
+{% endblock %}
