@@ -176,13 +176,13 @@ async function viewComplaint(complaintId) {
         
         const detailsHTML = `
             <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 24px;">
-                <p><strong>📧 Reporter:</strong> ${complaint.reporter_email}</p>
-                <p><strong>🗂️ Category:</strong> ${complaint.category}</p>
-                <p><strong>🎯 Title:</strong> ${complaint.title}</p>
-                <p><strong>📍 Location:</strong> ${complaint.location}</p>
-                <p><strong>⏰ Date:</strong> ${new Date(complaint.incident_date).toLocaleString()}</p>
+                <p><strong>📧 Reporter:</strong> ${complaint.reporter_email || 'N/A'}</p>
+                <p><strong>🗂️ Category:</strong> ${complaint.category || 'N/A'}</p>
+                <p><strong>🎯 Title:</strong> ${complaint.title || 'N/A'}</p>
+                <p><strong>📍 Location:</strong> ${complaint.location || 'N/A'}</p>
+                <p><strong>⏰ Date:</strong> ${complaint.incident_date ? new Date(complaint.incident_date).toLocaleString() : 'N/A'}</p>
                 <p><strong>📝 Description:</strong></p>
-                <p style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #2563eb;">${complaint.description}</p>
+                <p style="background: white; padding: 12px; border-radius: 8px; border-left: 4px solid #2563eb;">${complaint.description || 'N/A'}</p>
             </div>
         `;
         
@@ -196,10 +196,11 @@ async function viewComplaint(complaintId) {
         const trackingResponse = await fetch(`/api/complaint/${complaintId}/tracking`, { credentials: 'include' });
         if (trackingResponse.ok) {
             const tracking = await trackingResponse.json();
-            const historyHTML = tracking.tracking_history.map(entry => `
+            const updates = tracking.updates || [];
+            const historyHTML = updates.map(entry => `
                 <div class="tracking-item">
-                    <div class="timestamp">📅 ${new Date(entry.timestamp).toLocaleString()}</div>
-                    <div style="margin-top: 6px;">${entry.action}</div>
+                    <div class="timestamp">📅 ${new Date(entry.created_at).toLocaleString()}</div>
+                    <div style="margin-top: 6px;"><strong>${entry.status || 'Update'}</strong>: ${entry.message || 'No additional details.'}</div>
                 </div>
             `).join('');
             document.getElementById('trackingHistory').innerHTML = historyHTML;
