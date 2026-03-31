@@ -83,6 +83,7 @@ class Complaint(db.Model):
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
     incident_date = db.Column(db.DateTime, nullable=False)
+    aadhar_number = db.Column(db.String(20), nullable=True)
     
     status = db.Column(db.String(50), default='Submitted')  # Submitted, In Review, Verified, Rejected, Closed
     priority = db.Column(db.String(20), default='Medium')  # Low, Medium, High, Critical
@@ -104,6 +105,9 @@ class Complaint(db.Model):
             'title': self.title,
             'description': self.description,
             'location': self.location,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'aadhar_number': self.aadhar_number,
             'incident_date': self.incident_date.isoformat(),
             'status': self.status,
             'priority': self.priority,
@@ -290,6 +294,7 @@ def submit_complaint():
         location=data.get('location'),
         latitude=data.get('latitude', type=float),
         longitude=data.get('longitude', type=float),
+        aadhar_number=data.get('aadhar_number'),
         incident_date=datetime.fromisoformat(data.get('incident_date')),
         priority=data.get('priority', 'Medium')
     )
@@ -411,6 +416,16 @@ def get_tracking_updates(complaint_id):
         'status': complaint.status,
         'priority': complaint.priority,
         'updates': [u.to_dict() for u in updates]
+    }), 200
+
+
+@app.route('/api/user/complaints', methods=['GET'])
+@login_required
+def get_user_complaints():
+    user_id = session['user_id']
+    complaints = Complaint.query.filter_by(user_id=user_id).order_by(Complaint.created_at.desc()).all()
+    return jsonify({
+        'complaints': [c.to_dict() for c in complaints]
     }), 200
 
 
